@@ -65,6 +65,8 @@ jobs:
       uses: ./actions-step1
       with:
         build-mount-path: /builder
+      env:
+        ACTIONS_STEP_DEBUG: "false"
 
     - name: Initialization environment
       shell: bash
@@ -81,7 +83,8 @@ jobs:
 
     - name: Step 2
       uses: ./actions-step2
-
+      env:
+        ACTIONS_STEP_DEBUG: "false"
 
     - name: Step 3
       if: ${{ github.event.inputs.ccache == 'true'}}
