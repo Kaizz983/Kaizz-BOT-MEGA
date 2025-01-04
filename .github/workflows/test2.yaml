@@ -89,7 +89,7 @@ jobs:
       uses: actions/cache/restore@v4
       with:
         path: /builder/.ccache
-        key: openwrt-24.10-${{ github.event.inputs.device }}-ccache
+        key: openwrt-24.10-${{ github.event.inputs.device }}-${{ github.ref }}-ccache
 
     - name: Step 4
       working-directory: /builder
@@ -119,7 +119,7 @@ jobs:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         GH_REPO: ${{ github.repository }}
       run: |
-        gh cache delete openwrt-24.10-${{ github.event.inputs.device }}-ccache || true
+        gh cache delete openwrt-24.10-${{ github.event.inputs.device }}-${{ github.ref }}-ccache || true
 
     - name: Step 5.2
       if: ${{ github.event.inputs.ccache == 'true' }}
@@ -127,7 +127,7 @@ jobs:
       uses: actions/cache/save@v4
       with:
         path: /builder/.ccache
-        key: openwrt-24.10-${{ github.event.inputs.device }}-ccache
+        key: openwrt-24.10-${{ github.event.inputs.device }}-${{ github.ref }}-ccache
 
     - name: Step 6
       working-directory: /builder
