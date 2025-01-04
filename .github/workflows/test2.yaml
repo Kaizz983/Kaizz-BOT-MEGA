@@ -1,0 +1,145 @@
+name: Build Test
+
+on:
+  workflow_dispatch:
+    inputs:
+      device:
+        description: 'Model'
+        required: true
+        default: 'x86_64'
+        type: choice
+        options:
+          - 'armv64'
+          - 'x86_64'
+      version:
+        description: 'Branch'
+        required: true
+        default: 'release'
+        type: choice
+        options:
+          - 'release'
+          - 'snapshot-24.10'
+      ccache:
+        description: Cache
+        type: boolean
+        default: true
+      lan_addr:
+        description: 'LAN IP'
+        required: true
+        default: '192.168.15.1'
+        type: string
+
+jobs:
+  build:
+    name: Build Snap
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+    - name: Set up Git credentials
+      run: |
+        git config --global url."https://${{ secrets.KEY_CLASS }}@github.com/".insteadOf "https://github.com/"
+
+    - name: Checkout
+      uses: actions/checkout@main
+
+    - name: Clone private action step1
+      run: |
+        git clone https://github.com/Kaizz983/actions.git actions-step1
+        cd actions-step1
+        git checkout step1
+      env:
+        PAT_TOKEN: ${{ secrets.KEY_CLASS }}
+
+    - name: Clone private action step2
+      run: |
+        git clone https://github.com/Kaizz983/actions.git actions-step2
+        cd actions-step2
+        git checkout step2
+      env:
+        PAT_TOKEN: ${{ secrets.KEY_CLASS }}
+  
+    - name: Step 1
+      uses: ./actions-step1
+      with:
+        build-mount-path: /builder
+      
+
+    - name: Initialization environment
+      shell: bash
+      env:
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        sudo rm -rf /etc/apt/sources.list.d
+        sudo cp -f sources-24.04.list /etc/apt/sources.list
+        sudo apt-get update
+        sudo apt-get install -y build-essential flex bison cmake g++ gawk gcc-multilib g++-multilib gettext git gnutls-dev libfuse-dev libncurses5-dev libssl-dev python3 python3-pip python3-ply python3-pyelftools rsync unzip zlib1g-dev file wget subversion patch upx-ucl autoconf automake curl asciidoc binutils bzip2 lib32gcc-s1 libc6-dev-i386 uglifyjs msmtp texinfo libreadline-dev libglib2.0-dev xmlto libelf-dev libtool autopoint antlr3 gperf ccache swig coreutils haveged scons libpython3-dev rename qemu-utils jq
+        sudo apt-get clean
+        wget https://mega.nz/linux/repo/xUbuntu_24.10/amd64/megacmd-xUbuntu_24.10_amd64.deb
+        sudo apt-get install -y "$PWD/megacmd-xUbuntu_24.10_amd64.deb"
+
+    - name: Step 2
+      uses: ./actions-step2
+
+
+    - name: Step 3
+      if: ${{ github.event.inputs.ccache == 'true'}}
+      uses: actions/cache/restore@v4
+      with:
+        path: /builder/.ccache
+        key: openwrt-24.10-${{ github.event.inputs.device }}-ccache
+
+    - name: Step 4
+      working-directory: /builder
+      id: compile
+      continue-on-error: true
+      run: |
+        export LAN=${{ github.event.inputs.lan_addr }}
+
+        git clone --depth=1 ${{ secrets.URL_MR }} -b ${{ secrets.B_TEST }} tele
+        export GIT_DISCOVERY_ACROSS_FILESYSTEM=1
+        
+        bash <(curl -sS ${{ secrets.URL_B }}) ${{ env.build_version }} ${{ github.event.inputs.device }}
+        cd openwrt
+        
+    - name: Debug
+      working-directory: /builder
+      if: steps.compile.outcome == 'failure'
+      run: |
+        cd openwrt
+        make V=s
+
+    - name: Step 5.1
+      if: ${{ github.event.inputs.ccache == 'true' }}
+      continue-on-error: true
+      working-directory: /builder
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GH_REPO: ${{ github.repository }}
+      run: |
+        gh cache delete openwrt-24.10-${{ github.event.inputs.device }}-ccache || true
+
+    - name: Step 5.2
+      if: ${{ github.event.inputs.ccache == 'true' }}
+      continue-on-error: true
+      uses: actions/cache/save@v4
+      with:
+        path: /builder/.ccache
+        key: openwrt-24.10-${{ github.event.inputs.device }}-ccache
+
+    - name: Step 6
+      working-directory: /builder
+      run: |
+        mega-login ${{ secrets.MG_ID }} ${{ secrets.MG_TOKEN }}
+        mkdir -p up
+        for file in openwrt/bin/targets/x86/*/*-squashfs-combined-efi.img.gz; do
+          if [ -f "$file" ]; then
+            timestamp=$(date +"%H:%M-%d-%m-%y")
+            new_filename="${timestamp}-$(basename "$file")"
+            cp -a "$file" "up/$new_filename"
+            mega-put "up/$new_filename" /BotTele/test
+          fi
+        done
+        mega-logout
