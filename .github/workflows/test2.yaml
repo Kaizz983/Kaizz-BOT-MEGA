@@ -1,6 +1,8 @@
 name: Build Test
 
 on:
+  schedule:
+    - cron: '58 17 * * *' # 00:01
   workflow_dispatch:
     inputs:
       device:
