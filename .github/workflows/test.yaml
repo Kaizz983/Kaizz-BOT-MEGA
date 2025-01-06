@@ -143,4 +143,12 @@ jobs:
             mega-put "up/$new_filename" /BotTele
           fi
         done
+        current_day=$(date +%d)
+        mega-ls /BotTele/test | while read -r file_name; do
+          file_day=$(echo "$file_name" | awk -F'-' '{print $2}')
+          day_diff=$((current_day - file_day))
+          if [ $day_diff -gt 2 ] || [ $day_diff -lt -28 ]; then
+            mega-rm "/BotTele/test/$file_name"
+          fi
+        done
         mega-logout
