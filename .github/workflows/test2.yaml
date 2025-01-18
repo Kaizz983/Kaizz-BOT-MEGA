@@ -158,5 +158,5 @@ jobs:
       run: |
         runs=$(gh run list --limit 100 --json databaseId,status | jq -r '.[] | select(.status != "in_progress") | .databaseId')
         for run_id in $runs; do
-          gh run delete $run_id -y
+          gh run delete $run_id --confirm
         done
