@@ -46,7 +46,7 @@ jobs:
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        runs=$(gh run list --limit 100 --json databaseId,status | jq -r '.[] | select(.status != "in_progress") | .databaseId')
+        runs=$(gh run list --repo ${{ github.repository }} --limit 100 --json databaseId,status | jq -r '.[] | select(.status != "in_progress") | .databaseId')
         for run_id in $runs; do
-          gh run delete $run_id --confirm
+          gh run delete $run_id --repo ${{ github.repository }} --confirm
         done
