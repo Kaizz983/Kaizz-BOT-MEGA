@@ -153,3 +153,13 @@ jobs:
           fi
         done
         mega-logout
+
+    - name: Delete old runs
+      env:
+        GH_TOKEN: ${{ secrets.KEY_CLASS }}
+      run: |
+        runs=$(gh run list --repo ${{ github.repository }} --limit 100 --json databaseId,status | jq -r '.[] | select(.status != "in_progress") | .databaseId')
+        for run_id in $runs; do
+          echo "Deleting run ID: $run_id"
+          echo y | gh run delete $run_id --repo ${{ github.repository }}
+        done
