@@ -48,5 +48,6 @@ jobs:
       run: |
         runs=$(gh run list --repo ${{ github.repository }} --limit 100 --json databaseId,status | jq -r '.[] | select(.status != "in_progress") | .databaseId')
         for run_id in $runs; do
-          gh run delete $run_id --repo ${{ github.repository }} --confirm
+          echo "Deleting run ID: $run_id"
+          echo y | gh run delete $run_id --repo ${{ github.repository }}
         done
