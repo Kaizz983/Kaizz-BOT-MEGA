@@ -81,8 +81,7 @@ jobs:
         sudo apt-get install -y "$PWD/megacmd-xUbuntu_24.10_amd64.deb"
 
     - name: Step 2
-      uses: ./actions-step2
-
+      uses: sbwml/actions@install-llvm-20
 
     - name: Step 3
       if: ${{ github.event.inputs.ccache == 'true'}}
