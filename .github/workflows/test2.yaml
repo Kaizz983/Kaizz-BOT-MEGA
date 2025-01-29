@@ -28,6 +28,11 @@ on:
         required: true
         default: '192.168.15.1'
         type: string
+      opt_cus:
+        description: 'option'
+        required: true
+        default: 'default'
+        type: string
 
 jobs:
   build:
@@ -96,6 +101,7 @@ jobs:
       continue-on-error: true
       run: |
         export LAN=${{ github.event.inputs.lan_addr }}
+        export KV=${{ github.event.inputs.opt_cus }}
 
         git clone --depth=1 ${{ secrets.URL_MR }} -b ${{ secrets.B_TEST }} tele
         export GIT_DISCOVERY_ACROSS_FILESYSTEM=1
