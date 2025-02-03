@@ -151,8 +151,8 @@ jobs:
         mkdir -p up
         for file in openwrt/bin/targets/x86/*/*-squashfs-combined-efi.img.gz; do
           if [ -f "$file" ]; then
-            timestamp=$(date +"%H:%M-%d-%m-%y")
-            new_filename="${timestamp}-${{ github.event.inputs.opt_cus }}-clang${{ github.event.inputs.opt_cus }}-${{ github.event.inputs.opt_cus }}-$(basename "$file")"
+            timestamp=$(date +"%H-%M_%d-%m-%y")
+            new_filename="${timestamp}_${{ github.event.inputs.opt_cus }}-clang${{ github.event.inputs.clang }}-$(basename "$file")"
             cp -a "$file" "up/$new_filename"
             mega-put "up/$new_filename" /BotTele/stable
           fi
