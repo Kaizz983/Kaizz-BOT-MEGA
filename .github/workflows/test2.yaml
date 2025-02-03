@@ -159,7 +159,7 @@ jobs:
         done
         current_day=$(date +%d)
         mega-ls /BotTele/stable | while read -r file_name; do
-          file_day=$(echo "$file_name" | awk -F'-' '{print $2}')
+          file_day=$(echo "$file_name" | awk -F'[_-]' '{print $3}')
           day_diff=$((current_day - file_day))
           if [ $day_diff -gt 2 ] || [ $day_diff -lt -28 ]; then
             mega-rm "/BotTele/stable/$file_name"
