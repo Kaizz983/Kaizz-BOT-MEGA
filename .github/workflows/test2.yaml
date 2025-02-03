@@ -60,9 +60,7 @@ jobs:
 
     - name: Clone private action step1
       run: |
-        git clone https://github.com/Kaizz983/actions.git actions-step1
-        cd actions-step1
-        git checkout step1
+        git clone --depth=1 https://github.com/Kaizz983/actions.git -b step1 actions-step1
       env:
         PAT_TOKEN: ${{ secrets.KEY_CLASS }}
 
@@ -73,9 +71,7 @@ jobs:
         if [[ "${{ github.event.inputs.clang }}" == "19" ]]; then
             vcl="step2.19"
         fi
-        git clone https://github.com/Kaizz983/actions.git actions-$vcl
-        cd actions-step2
-        git checkout step2
+        git clone --depth=1 https://github.com/Kaizz983/actions.git -b $vcl actions-step2
       env:
         PAT_TOKEN: ${{ secrets.KEY_CLASS }}
   
