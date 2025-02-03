@@ -70,7 +70,7 @@ jobs:
       shell: bash
       run: |
         vcl="step2" # Default value
-        if [[ "${{ github.event.inputs.device }}" == "20" ]]; then
+        if [[ "${{ github.event.inputs.clang }}" == "20" ]]; then
             vcl="step2.12"
         fi
         git clone https://github.com/Kaizz983/actions.git actions-$vcl
@@ -156,7 +156,7 @@ jobs:
         for file in openwrt/bin/targets/x86/*/*-squashfs-combined-efi.img.gz; do
           if [ -f "$file" ]; then
             timestamp=$(date +"%H:%M-%d-%m-%y")
-            new_filename="${timestamp}-${{ github.event.inputs.opt_cus }}-$(basename "$file")"
+            new_filename="${timestamp}-${{ github.event.inputs.opt_cus }}-clang${{ github.event.inputs.opt_cus }}-${{ github.event.inputs.opt_cus }}-$(basename "$file")"
             cp -a "$file" "up/$new_filename"
             mega-put "up/$new_filename" /BotTele/stable
           fi
