@@ -19,6 +19,14 @@ on:
         options:
           - 'release'
           - 'snapshot-24.10'
+      clang:
+        description: 'Clang'
+        required: true
+        default: '20'
+        type: choice
+        options:
+          - '20'
+          - '19'
       ccache:
         description: Cache
         type: boolean
@@ -59,8 +67,13 @@ jobs:
         PAT_TOKEN: ${{ secrets.KEY_CLASS }}
 
     - name: Clone private action step2
+      shell: bash
       run: |
-        git clone https://github.com/Kaizz983/actions.git actions-step2
+        vcl="step2" # Default value
+        if [[ "${{ github.event.inputs.device }}" == "20" ]]; then
+            vcl="step2.12"
+        fi
+        git clone https://github.com/Kaizz983/actions.git actions-$vcl
         cd actions-step2
         git checkout step2
       env:
