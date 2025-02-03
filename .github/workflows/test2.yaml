@@ -70,8 +70,8 @@ jobs:
       shell: bash
       run: |
         vcl="step2" # Default value
-        if [[ "${{ github.event.inputs.clang }}" == "20" ]]; then
-            vcl="step2.12"
+        if [[ "${{ github.event.inputs.clang }}" == "19" ]]; then
+            vcl="step2.19"
         fi
         git clone https://github.com/Kaizz983/actions.git actions-$vcl
         cd actions-step2
