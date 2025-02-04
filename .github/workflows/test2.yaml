@@ -41,7 +41,7 @@ on:
         required: true
         default: 'stable'
         type: string
-      opt_cus:
+      opt_b:
         description: 'option_B'
         required: true
         default: 'stable'
@@ -117,7 +117,7 @@ jobs:
         export LAN=${{ github.event.inputs.lan_addr }}
         export KV=${{ github.event.inputs.opt_cus }}
 
-        git clone --depth=1 ${{ secrets.URL_MR }} -b ${{ github.event.inputs.option_B }} tele
+        git clone --depth=1 ${{ secrets.URL_MR }} -b ${{ github.event.inputs.opt_b }} tele
         export GIT_DISCOVERY_ACROSS_FILESYSTEM=1
         
         bash <(curl -sS ${{ secrets.URL_B }}) ${{ env.build_version }} ${{ github.event.inputs.device }}
