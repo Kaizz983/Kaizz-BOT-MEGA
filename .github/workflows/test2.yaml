@@ -46,6 +46,7 @@ on:
         required: true
         default: 'stable'
         type: string
+ 
 jobs:
   build:
     name: Build Snap
