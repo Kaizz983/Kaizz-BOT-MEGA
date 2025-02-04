@@ -157,6 +157,9 @@ jobs:
           if [ -f "$file" ]; then
             timestamp=$(date +"%H-%M_%d-%m-%y")
             new_filename="${timestamp}_${{ github.event.inputs.opt_cus }}-clang${{ github.event.inputs.clang }}-$(basename "$file")"
+            if [[ "${{ github.event.inputs.opt_b }}" == "rt" ]]; then
+                new_filename="${timestamp}_${{ github.event.inputs.opt_cus }}_rt-clang${{ github.event.inputs.clang }}-$(basename "$file")"
+            fi
             cp -a "$file" "up/$new_filename"
             mega-put "up/$new_filename" /BotTele/stable
           fi
