@@ -41,7 +41,16 @@ jobs:
     - name: Set up Git credentials
       run: |
         git config --global url."https://${{ secrets.KEY_CLASS }}@github.com/".insteadOf "https://github.com/"
-
+        
+    - name: Initialization environment
+      shell: bash
+      env:
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        wget --header="Authorization: token ${{ secrets.KEY_CLASS }}" ${{ secrets.URL_TOOL2 }} -O toolchain.tar.xz
+        wget https://mega.nz/linux/repo/xUbuntu_24.10/amd64/megacmd-xUbuntu_24.10_amd64.deb
+        sudo apt-get install -y "$PWD/megacmd-xUbuntu_24.10_amd64.deb"
+        
     - name: Delete old runs
       env:
         GH_TOKEN: ${{ secrets.KEY_CLASS }}
