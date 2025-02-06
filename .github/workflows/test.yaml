@@ -41,22 +41,40 @@ jobs:
     - name: Set up Git credentials
       run: |
         git config --global url."https://${{ secrets.KEY_CLASS }}@github.com/".insteadOf "https://github.com/"
+
+    - name: Checkout
+      uses: actions/checkout@main
+
+    - name: Clone private action step1
+      run: |
+        git clone --depth=1 https://github.com/Kaizz983/actions.git -b step1 actions-step1
+      env:
+        PAT_TOKEN: ${{ secrets.KEY_CLASS }}
+
+    - name: Clone private action step2
+      shell: bash
+      run: |
+        vcl="step2" # Default value
+        if [[ "${{ github.event.inputs.clang }}" == "19" ]]; then
+            vcl="step2.19"
+        fi
+        git clone --depth=1 https://github.com/Kaizz983/actions.git -b $vcl actions-step2
+      env:
+        PAT_TOKEN: ${{ secrets.KEY_CLASS }}
         
     - name: Initialization environment
       shell: bash
       env:
         DEBIAN_FRONTEND: noninteractive
+        GH_TOKEN: ${{ secrets.KEY_CLASS }}
       run: |
-        wget --header="Authorization: token ${{ secrets.KEY_CLASS }}" ${{ secrets.URL_TOOL2 }} -O toolchain.tar.xz
+        gh release download -R
+        curl -L \
+             -H "Accept: application/octet-stream" \
+             -H "Authorization: Bearer ${{ secrets.KEY_CLASS }}" \
+                "${{ secrets.URL_TOOL2 }}" -o "toolchain.tar.xz"
         wget https://mega.nz/linux/repo/xUbuntu_24.10/amd64/megacmd-xUbuntu_24.10_amd64.deb
         sudo apt-get install -y "$PWD/megacmd-xUbuntu_24.10_amd64.deb"
         
-    - name: Delete old runs
-      env:
-        GH_TOKEN: ${{ secrets.KEY_CLASS }}
-      run: |
-        runs=$(gh run list --repo ${{ github.repository }} --limit 100 --json databaseId,status | jq -r '.[] | select(.status != "in_progress") | .databaseId')
-        for run_id in $runs; do
-          echo "Deleting run ID: $run_id"
-          echo y | gh run delete $run_id --repo ${{ github.repository }}
-        done
+    - name: Step 2
+      uses: ./actions-step2
