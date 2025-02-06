@@ -66,9 +66,7 @@ jobs:
       shell: bash
       env:
         DEBIAN_FRONTEND: noninteractive
-        GH_TOKEN: ${{ secrets.KEY_CLASS }}
       run: |
-        gh release download -R
         curl -L \
              -H "Accept: application/octet-stream" \
              -H "Authorization: Bearer ${{ secrets.KEY_CLASS }}" \
