@@ -162,15 +162,15 @@ jobs:
                 new_filename="${timestamp}_${{ github.event.inputs.opt_cus }}_rt-clang${{ github.event.inputs.clang }}-$(basename "$file")"
             fi
             cp -a "$file" "up/$new_filename"
-            mega-put "up/$new_filename" /BotTele/stable
+            mega-put "up/$new_filename" /BotTele/rt
           fi
         done
-        current_day=$(date +%d)
-        mega-ls /BotTele/stable | while read -r file_name; do
-          file_day=$(echo "$file_name" | awk -F'[_-]' '{print $3}')
+        current_day=$(date +%-d)
+        mega-ls /BotTele/rt | while read -r file_name; do
+          file_day=$(echo "$file_name" | awk -F'[_-]' '{print $3}' | sed 's/^0//')
           day_diff=$((current_day - file_day))
           if [ $day_diff -gt 2 ] || [ $day_diff -lt -28 ]; then
-            mega-rm "/BotTele/stable/$file_name"
+            mega-rm "/BotTele/rt/$file_name"
           fi
         done
         mega-logout
