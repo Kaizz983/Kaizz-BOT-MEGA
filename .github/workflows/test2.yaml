@@ -165,9 +165,9 @@ jobs:
             mega-put "up/$new_filename" /BotTele/stable
           fi
         done
-        current_day=$(date +%d)
+        current_day=$(date +%-d)
         mega-ls /BotTele/stable | while read -r file_name; do
-          file_day=$(echo "$file_name" | awk -F'[_-]' '{print $3}')
+          file_day=$(echo "$file_name" | awk -F'[_-]' '{print $3}' | sed 's/^0//')
           day_diff=$((current_day - file_day))
           if [ $day_diff -gt 2 ] || [ $day_diff -lt -28 ]; then
             mega-rm "/BotTele/stable/$file_name"
