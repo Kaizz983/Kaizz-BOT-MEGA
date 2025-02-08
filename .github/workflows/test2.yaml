@@ -39,12 +39,12 @@ on:
       opt_cus:
         description: 'option_K'
         required: true
-        default: 'stable'
+        default: 'stock'
         type: string
       opt_b:
         description: 'option_B'
         required: true
-        default: 'stable'
+        default: 'rt'
         type: string
  
 jobs:
