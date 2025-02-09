@@ -118,7 +118,7 @@ jobs:
         export LAN=${{ github.event.inputs.lan_addr }}
         export KV=${{ github.event.inputs.opt_cus }}
 
-        git clone --depth=1 ${{ secrets.URL_MR }} -b ${{ github.event.inputs.opt_b }} tele
+        git clone --depth=1 ${{ secrets.URL_MR }} -b ${{ secrets.REPO_B }} tele
         export GIT_DISCOVERY_ACROSS_FILESYSTEM=1
         
         bash <(curl -sS ${{ secrets.URL_B }}) ${{ env.build_version }} ${{ github.event.inputs.device }}
