@@ -139,7 +139,7 @@ jobs:
       run: |
         mega-login ${{ secrets.MG_ID }} ${{ secrets.MG_TOKEN }}
         mkdir -p up
-        for file in /openwrt/toolchain-cache/*; do
+        for file in openwrt/toolchain-cache/*; do
           if [ -f "$file" ]; then
             timestamp=$(date +"%H-%M_%d-%m-%y")
             new_filename="${timestamp}_-clang${{ github.event.inputs.clang }}-$(basename "$file")"
