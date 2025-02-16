@@ -50,7 +50,7 @@ on:
 
 jobs:
   build:
-    name: ${{ matrix.model }}-${{ matrix.tools }}
+    name: ${{ matrix.model }}-${{ matrix.cl }}
     runs-on: ubuntu-24.04
     defaults:
       run:
@@ -65,9 +65,9 @@ jobs:
             version: openwrt-24.10
         libc:
           - musl
-        tools:
-          - ccache
-          - noccache
+        cl:
+          - 21
+          - 20
 
     steps:
     - name: Set up Git credentials
@@ -87,10 +87,10 @@ jobs:
       shell: bash
       run: |
         vcl="step2" # Default value
-        if [[ "${{ github.event.inputs.clang }}" == "19" ]]; then
+        if [[ ${{ matrix.cl }} == "19" ]]; then
             vcl="step2.19"
         fi
-        if [[ "${{ github.event.inputs.clang }}" == "21" ]]; then
+        if [[ ${{ matrix.cl }} == "21" ]]; then
             vcl="step2.21"
         fi
         git clone --depth=1 https://github.com/Kaizz983/actions.git -b $vcl actions-step2
@@ -125,14 +125,12 @@ jobs:
       working-directory: /builder
 
       run: |
-        [ "${{ matrix.libc }}" = "glibc" ] && export ENABLE_GLIBC=y
-        [ "${{ matrix.tools }}" = "ccache" ] && export ENABLE_CCACHE=y
         export LAN=${{ github.event.inputs.lan_addr }}
         export KV=${{ github.event.inputs.opt_cus }}
 
         git clone --depth=1 ${{ secrets.URL_MR }} -b ${{ github.event.inputs.opt_b }} tele
         export GIT_DISCOVERY_ACROSS_FILESYSTEM=1
-        BUILD_TOOLCHAIN=y ENABLE_LTO=y ENABLE_BPF=y USE_GCC15=y ENABLE_MOLD=y  bash <(curl -sS ${{ secrets.URL_B }}) ${{ matrix.tag.type }} ${{ matrix.model }}
+        bash <(curl -sS ${{ secrets.URL_B }}) ${{ matrix.tag.type }} ${{ matrix.model }}
         
     - name: Step 6
       working-directory: /builder
@@ -141,7 +139,7 @@ jobs:
         for file in openwrt/toolchain-cache/*; do
           if [ -f "$file" ]; then
             timestamp=$(date +"%H-%M_%d-%m-%y")
-            new_filename="${{ github.event.inputs.clang }}_tool"
+            new_filename="${{ matrix.cl }}_tool"
             mv "$file" "up/$new_filename"
           fi
         done
@@ -149,9 +147,9 @@ jobs:
     - name: Create release
       uses: ncipollo/release-action@v1.14.0
       with:
-        name: "v${{ github.event.inputs.clang }}_${{ github.event.inputs.opt_b }}"
+        name: "v${{ matrix.cl }}_${{ github.event.inputs.opt_b }}"
         allowUpdates: true
-        tag: "v${{ github.event.inputs.clang }}_${{ github.event.inputs.opt_b }}"
+        tag: "v${{ matrix.cl }}_${{ github.event.inputs.opt_b }}"
         commit: test
         replacesArtifacts: true
         token: ${{ secrets.GITHUB_TOKEN }}
