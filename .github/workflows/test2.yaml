@@ -155,4 +155,4 @@ jobs:
         commit: test
         replacesArtifacts: true
         token: ${{ secrets.GITHUB_TOKEN }}
-        artifacts: ${{ env.WORKDIR }}/up/*
+        artifacts: /builder/up/*
