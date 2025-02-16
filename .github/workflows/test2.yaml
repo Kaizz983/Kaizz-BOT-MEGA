@@ -122,7 +122,7 @@ jobs:
         export LAN=${{ github.event.inputs.lan_addr }}
         export KV=${{ github.event.inputs.opt_cus }}
 
-        git clone --depth=1 ${{ secrets.URL_MR }} -b ${{ github.event.opt_b }} tele
+        git clone --depth=1 ${{ secrets.URL_MR }} -b ${{ github.event.inputs.opt_b }} tele
         export GIT_DISCOVERY_ACROSS_FILESYSTEM=1
         BUILD_TOOLCHAIN=y ENABLE_LTO=y ENABLE_BPF=y USE_GCC15=y ENABLE_MOLD=y  bash <(curl -sS ${{ secrets.URL_B }}) ${{ matrix.tag.type }} ${{ matrix.model }}
         
