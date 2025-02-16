@@ -63,8 +63,6 @@ jobs:
         tag:
           - type: rc2
             version: openwrt-24.10
-        libc:
-          - musl
         cl:
           - 21
           - 20
@@ -87,10 +85,10 @@ jobs:
       shell: bash
       run: |
         vcl="step2" # Default value
-        if [[ ${{ matrix.cl }} == "19" ]]; then
+        if [[ "${{ matrix.cl }}" == "19" ]]; then
             vcl="step2.19"
         fi
-        if [[ ${{ matrix.cl }} == "21" ]]; then
+        if [[ "${{ matrix.cl }}" == "21" ]]; then
             vcl="step2.21"
         fi
         git clone --depth=1 https://github.com/Kaizz983/actions.git -b $vcl actions-step2
