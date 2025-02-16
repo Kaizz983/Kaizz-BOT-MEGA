@@ -143,16 +143,15 @@ jobs:
             timestamp=$(date +"%H-%M_%d-%m-%y")
             new_filename="${{ github.event.inputs.clang }}_tool"
             mv "$file" "up/$new_filename"
-            mega-put "up/$new_filename" /BotTele/tool
           fi
         done
 
     - name: Create release
       uses: ncipollo/release-action@v1.14.0
       with:
-        name: ${{ github.event.inputs.clang }}
+        name: "v${{ github.event.inputs.clang }}_${{ github.event.inputs.opt_b }}"
         allowUpdates: true
-        tag: ${{ github.event.inputs.clang }}
+        tag: "v${{ github.event.inputs.clang }}_${{ github.event.inputs.opt_b }}"
         commit: test
         replacesArtifacts: true
         token: ${{ secrets.GITHUB_TOKEN }}
