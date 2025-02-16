@@ -137,14 +137,23 @@ jobs:
     - name: Step 6
       working-directory: /builder
       run: |
-        mega-login ${{ secrets.MG_ID }} ${{ secrets.MG_TOKEN }}
         mkdir -p up
         for file in openwrt/toolchain-cache/*; do
           if [ -f "$file" ]; then
             timestamp=$(date +"%H-%M_%d-%m-%y")
-            new_filename="${timestamp}_-clang${{ github.event.inputs.clang }}-$(basename "$file")"
-            cp -a "$file" "up/$new_filename"
+            new_filename="${{ github.event.inputs.clang }}_tool"
+            mv "$file" "up/$new_filename"
             mega-put "up/$new_filename" /BotTele/tool
           fi
         done
-        mega-logout
+
+    - name: Create release
+      uses: ncipollo/release-action@v1.14.0
+      with:
+        name: ${{ github.event.inputs.clang }}
+        allowUpdates: true
+        tag: ${{ github.event.inputs.clang }}
+        commit: test
+        replacesArtifacts: true
+        token: ${{ secrets.GITHUB_TOKEN }}
+        artifacts: ${{ env.WORKDIR }}/up/*
