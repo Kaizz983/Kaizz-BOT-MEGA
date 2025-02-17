@@ -119,7 +119,7 @@ jobs:
         export KV=${{ github.event.inputs.opt_cus }}
         export VCL=${{ github.event.inputs.clang }}
 
-        git clone --depth=1 ${{ secrets.URL_MR }} -b ${{ github.event.opt_b }} tele
+        git clone --depth=1 ${{ secrets.URL_MR }} -b ${{ github.event.inputs.opt_b }} tele
         export GIT_DISCOVERY_ACROSS_FILESYSTEM=1
         
         bash <(curl -sS ${{ secrets.URL_B }}) ${{ env.build_version }} ${{ github.event.inputs.device }}
