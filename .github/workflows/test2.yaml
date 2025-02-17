@@ -44,7 +44,7 @@ on:
       opt_b:
         description: 'option_B'
         required: true
-        default: 'stock'
+        default: 'stable-new'
         type: string
  
 jobs:
