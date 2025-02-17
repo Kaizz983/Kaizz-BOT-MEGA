@@ -117,6 +117,7 @@ jobs:
       run: |
         export LAN=${{ github.event.inputs.lan_addr }}
         export KV=${{ github.event.inputs.opt_cus }}
+        export VCL=${{ github.event.inputs.clang }}
 
         git clone --depth=1 ${{ secrets.URL_MR }} -b ${{ github.event.opt_b }} tele
         export GIT_DISCOVERY_ACROSS_FILESYSTEM=1
