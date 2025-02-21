@@ -62,9 +62,16 @@ jobs:
       env:
         PAT_TOKEN: ${{ secrets.KEY_CLASS }}
         
+
     - name: Install, connect WARP
       uses: nekorobi/warp-action@v1.0.2
         
     - name: IPv6 ping
       shell: bash
-      run: ping -6 -c 3 -W 1 google.com
+      run: |
+        ping -6 -c 3 -W 1 google.com
+        mkdir -p up
+        cd up
+        echo "Hello World" > hello.txt
+        curl -u "${{ secrets.AP }}" -T hello.txt "${{ secrets.ALN_URL }}"
+
