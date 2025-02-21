@@ -62,17 +62,9 @@ jobs:
       env:
         PAT_TOKEN: ${{ secrets.KEY_CLASS }}
         
-    - name: Initialization environment
-      shell: bash
-      env:
-        DEBIAN_FRONTEND: noninteractive
-      run: |
-        curl -L \
-             -H "Accept: application/octet-stream" \
-             -H "Authorization: Bearer ${{ secrets.KEY_CLASS }}" \
-                "${{ secrets.URL_TOOL2 }}" -o "toolchain.tar.xz"
-        wget https://mega.nz/linux/repo/xUbuntu_24.10/amd64/megacmd-xUbuntu_24.10_amd64.deb
-        sudo apt-get install -y "$PWD/megacmd-xUbuntu_24.10_amd64.deb"
+    - name: Install, connect WARP
+      uses: nekorobi/warp-action@v1
         
-    - name: Step 2
-      uses: ./actions-step2
+    - name: IPv6 ping
+      shell: bash
+      run: ping -6 -c 3 -W 1 google.com
