@@ -166,12 +166,16 @@ jobs:
         for file in openwrt/bin/targets/x86/*/*-squashfs-combined-efi.img.gz; do
           if [ -f "$file" ]; then
             timestamp=$(date +"%H-%M_%d-%m-%y")
-            new_filename="${timestamp}_${{ github.event.inputs.opt_cus }}-clang${{ github.event.inputs.clang }}-$(basename "$file")"
+            prefix="${timestamp}_${{ github.event.inputs.opt_cus }}-clang${{ github.event.inputs.clang }}"
             if [[ "${{ github.event.inputs.opt_b }}" == "rt" ]]; then
-                new_filename="${timestamp}_${{ github.event.inputs.opt_cus }}_rt-clang${{ github.event.inputs.clang }}-$(basename "$file")"
+                prefix="${timestamp}_${{ github.event.inputs.opt_cus }}_rt-clang${{ github.event.inputs.clang }}"
             fi
+            new_filename="${prefix}-$(basename "$file")"
+            echo > "up/${prefix}-hash.txt"
+            sha256sum "$file" >> "up/${prefix}-hash.txt"
             cp -a "$file" "up/$new_filename"
             curl -u "${{ secrets.AP }}" -T "up/$new_filename" "${{ secrets.ALN_URL }}"
+            curl -u "${{ secrets.AP }}" -T "up/${prefix}-hash.txt" "${{ secrets.ALN_URL }}"
           fi
         done
 
