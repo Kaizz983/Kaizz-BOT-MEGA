@@ -63,7 +63,7 @@ jobs:
         PAT_TOKEN: ${{ secrets.KEY_CLASS }}
         
     - name: Install, connect WARP
-      uses: nekorobi/warp-action@v1
+      uses: nekorobi/warp-action@v1.0.2
         
     - name: IPv6 ping
       shell: bash
