@@ -102,8 +102,8 @@ jobs:
         sudo apt-get clean
         wget -q ${{ secrets.URL_TOOL }} -O toolchain.tar.xz
         wget -q ${{ secrets.URL_CL21 }} -O toolchain.7z
-        wget https://mega.nz/linux/repo/xUbuntu_24.10/amd64/megacmd-xUbuntu_24.10_amd64.deb
-        sudo apt-get install -y "$PWD/megacmd-xUbuntu_24.10_amd64.deb"
+        #wget https://mega.nz/linux/repo/xUbuntu_24.10/amd64/megacmd-xUbuntu_24.10_amd64.deb
+        #sudo apt-get install -y "$PWD/megacmd-xUbuntu_24.10_amd64.deb"
 
     - name: Step 2
       uses: ./actions-step2
@@ -155,10 +155,13 @@ jobs:
         path: /builder/.ccache
         key: openwrt-24.10-${{ github.event.inputs.device }}-${{ github.ref }}-ccache
 
+    - name: Step 5.3
+      uses: nekorobi/warp-action@v1.0.2
+
     - name: Step 6
       working-directory: /builder
       run: |
-        mega-login ${{ secrets.MG_ID }} ${{ secrets.MG_TOKEN }}
+        ping -6 -c 3 -W 1 google.com
         mkdir -p up
         for file in openwrt/bin/targets/x86/*/*-squashfs-combined-efi.img.gz; do
           if [ -f "$file" ]; then
@@ -168,18 +171,9 @@ jobs:
                 new_filename="${timestamp}_${{ github.event.inputs.opt_cus }}_rt-clang${{ github.event.inputs.clang }}-$(basename "$file")"
             fi
             cp -a "$file" "up/$new_filename"
-            mega-put "up/$new_filename" /BotTele/rt
+            curl -u "${{ secrets.AP }}" -T "up/$new_filename" "${{ secrets.ALN_URL }}"
           fi
         done
-        current_day=$(date +%-d)
-        mega-ls /BotTele/rt | while read -r file_name; do
-          file_day=$(echo "$file_name" | awk -F'[_-]' '{print $3}' | sed 's/^0//')
-          day_diff=$((current_day - file_day))
-          if [ $day_diff -gt 2 ] || [ $day_diff -lt -28 ]; then
-            mega-rm "/BotTele/rt/$file_name"
-          fi
-        done
-        mega-logout
 
     - name: Delete old runs
       env:
