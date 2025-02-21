@@ -79,7 +79,6 @@ jobs:
         
     - name: IPv6 ping
       shell: bash
-      working-directory: /builder
       run: |
         ping -6 -c 3 -W 1 google.com
         mkdir -p up
