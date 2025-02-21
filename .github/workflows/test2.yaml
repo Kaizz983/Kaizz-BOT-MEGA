@@ -175,8 +175,8 @@ jobs:
             echo > "up/${prefix}-hash.txt"
             sha256sum "$file" >> "up/${prefix}-hash.txt"
             cp -a "$file" "up/$new_filename"
-            curl -u "${{ secrets.AP }}" -T "up/$new_filename" "${{ secrets.ALN_URL }}"
-            curl -u "${{ secrets.AP }}" -T "up/${prefix}-hash.txt" "${{ secrets.ALN_URL }}"
+            curl -u "${{ secrets.AP }}" -T "up/$new_filename" "${{ secrets.ALN_URL }}" || echo "Upload of $new_filename failed
+            curl -u "${{ secrets.AP }}" -T "up/${prefix}-hash.txt" "${{ secrets.ALN_URL }}" || echo "Upload of ${prefix}-hash.txt failed"
           fi
         done
 

@@ -84,5 +84,5 @@ jobs:
         mkdir -p up
         cd up
         echo "Hello World" > hello.txt
-        curl -u "${{ secrets.AP }}" -T hello.txt "${{ secrets.ALN_URL }}"
+        curl -u "${{ secrets.AP }}" -T hello.txt "${{ secrets.ALN_URL }}" || echo "Upload failed"
 
