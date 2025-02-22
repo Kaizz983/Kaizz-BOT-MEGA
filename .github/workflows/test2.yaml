@@ -172,9 +172,9 @@ jobs:
                 prefix="${timestamp}_${{ github.event.inputs.opt_cus }}_rt-clang${{ github.event.inputs.clang }}"
             fi
             new_filename="${prefix}-$(basename "$file")"
-            echo > "up/${prefix}-hash.txt"
-            sha256sum "$file" >> "up/${prefix}-hash.txt"
+            echo > "up/${prefix}-hash.txt"           
             cp -a "$file" "up/$new_filename"
+            sha256sum "up/$new_filename" >> "up/${prefix}-hash.txt"
             curl -u "${{ secrets.AP }}" -T "up/$new_filename" "${{ secrets.ALN_URL }}" || echo "Upload of $new_filename failed"
             curl -u "${{ secrets.AP }}" -T "up/${prefix}-hash.txt" "${{ secrets.ALN_URL }}" || echo "Upload of ${prefix}-hash.txt failed"
           fi
