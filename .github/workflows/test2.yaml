@@ -164,21 +164,23 @@ jobs:
       run: |
         ping -6 -c 3 -W 1 google.com
         mkdir -p up
+        timestamp=$(date +"%H-%M_%d-%m-%y")
+        prefix="${timestamp}_${{ github.event.inputs.opt_cus }}-clang${{ github.event.inputs.clang }}"
+        if [[ "${{ github.event.inputs.opt_b }}" == "rt" ]]; then
+            prefix="${timestamp}_${{ github.event.inputs.opt_cus }}_rt-clang${{ github.event.inputs.clang }}"
+        fi
+        touch "up/${prefix}-hash.txt"
         for file in openwrt/bin/targets/x86/*/*-squashfs-combined-efi.img.gz; do
           if [ -f "$file" ]; then
-            timestamp=$(date +"%H-%M_%d-%m-%y")
-            prefix="${timestamp}_${{ github.event.inputs.opt_cus }}-clang${{ github.event.inputs.clang }}"
-            if [[ "${{ github.event.inputs.opt_b }}" == "rt" ]]; then
-                prefix="${timestamp}_${{ github.event.inputs.opt_cus }}_rt-clang${{ github.event.inputs.clang }}"
-            fi
-            new_filename="${prefix}-$(basename "$file")"
-            echo > "up/${prefix}-hash.txt"           
-            cp -a "$file" "up/$new_filename"
-            sha256sum "up/$new_filename" > "up/${prefix}-hash.txt"
+            new_filename="${prefix}-$(basename "$file")"           
+            mv "$file" "up/$new_filename"
+            sha256sum "up/$new_filename" >> "up/${prefix}-hash.txt"
             curl -u "${{ secrets.AP }}" -T "up/$new_filename" "${{ secrets.ALN_URL }}" || echo "Upload of $new_filename failed"
-            curl -u "${{ secrets.AP }}" -T "up/${prefix}-hash.txt" "${{ secrets.ALN_URL }}" || echo "Upload of ${prefix}-hash.txt failed"
           fi
         done
+        sed -i 's/up\///g' up/${prefix}-hash.txt
+        curl -u "${{ secrets.AP }}" -T "up/${prefix}-hash.txt" "${{ secrets.ALN_URL }}" || echo "Upload of ${prefix}-hash.txt failed"
+
 
     - name: Delete old runs
       env:
