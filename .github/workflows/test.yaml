@@ -80,7 +80,7 @@ jobs:
     - name: IPv6 ping
       shell: bash
       run: |
-        ping -6 -c 3 -W 1 google.com
+        ping -6 -c 3 -W 1 dns.google.com
         mkdir -p up
         cd up
         echo "Hello World" > hello.txt
