@@ -47,6 +47,14 @@ on:
         required: true
         default: 'rt'
         type: string
+      opt_test:
+        description: 'option_Test'
+        required: true
+        default: '0'
+        type: choice
+        options:
+          - '0'
+          - '1'
  
 jobs:
   build:
@@ -124,6 +132,7 @@ jobs:
         export LAN=${{ github.event.inputs.lan_addr }}
         export KV=${{ github.event.inputs.opt_cus }}
         export VCL=${{ github.event.inputs.clang }}
+        export TEST_PACK=${{ github.event.inputs.opt_test }}
 
         git clone --depth=1 ${{ secrets.URL_MR }} -b ${{ github.event.inputs.opt_b }} tele
         export GIT_DISCOVERY_ACROSS_FILESYSTEM=1
