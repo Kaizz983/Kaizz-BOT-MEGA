@@ -142,7 +142,7 @@ jobs:
         
     - name: Debug
       working-directory: /builder
-      if: steps.compile.outcome == 'failure'
+      if: steps.compile.outcome == 'failure' && github.event.inputs.opt_test == '0'
       run: |
         cd openwrt
         make V=s
