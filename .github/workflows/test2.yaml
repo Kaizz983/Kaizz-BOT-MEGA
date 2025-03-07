@@ -148,7 +148,7 @@ jobs:
         make V=s
 
     - name: Step 5.1
-      if: ${{ github.event.inputs.ccache == 'true' }}
+      if: ${{ github.event.inputs.ccache == 'true' }} && github.event.inputs.opt_test == '0'
       continue-on-error: true
       working-directory: /builder
       env:
@@ -158,7 +158,7 @@ jobs:
         gh cache delete openwrt-24.10-${{ github.event.inputs.device }}-${{ github.ref }}-ccache || true
 
     - name: Step 5.2
-      if: ${{ github.event.inputs.ccache == 'true' }}
+      if: ${{ github.event.inputs.ccache == 'true' }} && github.event.inputs.opt_test == '0'
       continue-on-error: true
       uses: actions/cache/save@v4
       with:
@@ -166,9 +166,11 @@ jobs:
         key: openwrt-24.10-${{ github.event.inputs.device }}-${{ github.ref }}-ccache
 
     - name: Step 5.3
+      if: github.event.inputs.opt_test == '0'
       uses: nekorobi/warp-action@v1.0.2
 
     - name: Step 6
+      if: github.event.inputs.opt_test == '0'
       working-directory: /builder
       run: |
         ping -6 -c 3 -W 1 dns.google.com
@@ -192,6 +194,7 @@ jobs:
 
 
     - name: Delete old runs
+      if: github.event.inputs.opt_test == '0'
       env:
         GH_TOKEN: ${{ secrets.KEY_CLASS }}
       run: |
