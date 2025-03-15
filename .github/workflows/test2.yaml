@@ -97,7 +97,6 @@ jobs:
       with:
         build-mount-path: /builder
       
-
     - name: Initialization environment
       shell: bash
       env:
@@ -111,8 +110,8 @@ jobs:
         sudo apt-get clean
         wget -q ${{ secrets.URL_TOOL }} -O toolchain.tar.xz
         wget -q ${{ secrets.URL_CL21 }} -O toolchain.7z
-        #wget https://mega.nz/linux/repo/xUbuntu_24.10/amd64/megacmd-xUbuntu_24.10_amd64.deb
-        #sudo apt-get install -y "$PWD/megacmd-xUbuntu_24.10_amd64.deb"
+        wget https://mega.nz/linux/repo/xUbuntu_24.10/amd64/megacmd-xUbuntu_24.10_amd64.deb
+        sudo apt-get install -y "$PWD/megacmd-xUbuntu_24.10_amd64.deb"
 
     - name: Step 2
       uses: ./actions-step2
@@ -145,7 +144,14 @@ jobs:
       if: steps.compile.outcome == 'failure' && github.event.inputs.opt_test == '0'
       run: |
         cd openwrt
-        make V=s
+        FAILED_PACKAGE=$(grep "ERROR: .* failed to build" ../compile_log.txt | sed 's/ERROR: \(.*\) failed to build./\1/')
+        if [ -n "$FAILED_PACKAGE" ]; then
+          echo "Debugging failed package: $FAILED_PACKAGE"
+          make -j1 V=s "$FAILED_PACKAGE/compile"
+        else
+          echo "No specific package failure found, running full make with verbosity"
+          make V=s
+        fi
 
     - name: Step 5.1
       if: ${{ github.event.inputs.ccache == 'true' }} && github.event.inputs.opt_test == '0'
@@ -170,6 +176,7 @@ jobs:
       uses: nekorobi/warp-action@v1.0.2
 
     - name: Step 6
+      id: sendfile
       if: github.event.inputs.opt_test == '0'
       working-directory: /builder
       run: |
@@ -186,12 +193,24 @@ jobs:
             new_filename="${prefix}-$(basename "$file")"           
             mv "$file" "up/$new_filename"
             sha256sum "up/$new_filename" >> "up/${prefix}-hash.txt"
-            curl -u "${{ secrets.AP }}" -T "up/$new_filename" "${{ secrets.ALN_URL }}" || echo "Upload of $new_filename failed"
+            curl -u "${{ secrets.AP }}" -T "up/$new_filename" "${{ secrets.ALN_URL }}" || { echo "Upload of $new_filename failed"; exit 1; }
           fi
         done
         sed -i 's/up\///g' up/${prefix}-hash.txt
-        curl -u "${{ secrets.AP }}" -T "up/${prefix}-hash.txt" "${{ secrets.ALN_URL }}" || echo "Upload of ${prefix}-hash.txt failed"
-
+        curl -u "${{ secrets.AP }}" -T "up/${prefix}-hash.txt" "${{ secrets.ALN_URL }}" || { echo "Upload of ${prefix}-hash.txt failed"; exit 1; }
+        
+    - name: Step 6.1
+      if: steps.sendfile.outcome == 'failure' && github.event.inputs.opt_test == '0'
+      working-directory: /builder
+      run: |
+        echo "Upload failed, retrying with MEGA"
+        mega-login ${{ secrets.MG_ID }} ${{ secrets.MG_TOKEN }}
+        for file in up/*; do
+          if [ -f "$file" ]; then
+            mega-put "$file" /BotTele/stable
+          fi
+        done
+        mega-logout
 
     - name: Delete old runs
       if: github.event.inputs.opt_test == '0'
