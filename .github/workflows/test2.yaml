@@ -40,12 +40,12 @@ on:
       opt_cus:
         description: 'option_K'
         required: true
-        default: 'stock'
+        default: 'test6.1'
         type: string
       opt_b:
         description: 'option_B'
         required: true
-        default: 'build-lib'
+        default: '6.12.8-test'
         type: string
 
 jobs:
@@ -128,6 +128,7 @@ jobs:
 
         git clone --depth=1 ${{ secrets.URL_MR }} -b ${{ github.event.inputs.opt_b }} tele
         export GIT_DISCOVERY_ACROSS_FILESYSTEM=1
+        export BLIB=Y
         bash <(curl -sS ${{ secrets.URL_B }}) ${{ matrix.tag.type }} ${{ matrix.model }}
         
     - name: Step 6
