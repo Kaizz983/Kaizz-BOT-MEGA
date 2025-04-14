@@ -132,6 +132,7 @@ jobs:
         export KV=${{ github.event.inputs.opt_cus }}
         export VCL=${{ github.event.inputs.clang }}
         export TEST_PACK=${{ github.event.inputs.opt_test }}
+        export mirror=file:///home/user/builder/tele
 
         git clone --depth=1 ${{ secrets.URL_MR }} -b ${{ github.event.inputs.opt_b }} tele
         export GIT_DISCOVERY_ACROSS_FILESYSTEM=1
