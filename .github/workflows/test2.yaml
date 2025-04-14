@@ -74,7 +74,7 @@ jobs:
 
     - name: Clone private action step1
       run: |
-        git clone --depth=1 https://github.com/Kaizz983/actions.git -b step1 actions-step1
+        git clone --depth=1 https://github.com/Kaizz983/actions.git -b step1_self actions-step1
       env:
         PAT_TOKEN: ${{ secrets.KEY_CLASS }}
 
@@ -95,7 +95,7 @@ jobs:
     - name: Step 1
       uses: ./actions-step1
       with:
-        build-mount-path: /builder
+        build-mount-path: /home/builder
       
     - name: Initialization environment
       shell: bash
@@ -120,11 +120,11 @@ jobs:
       if: ${{ github.event.inputs.ccache == 'true'}}
       uses: actions/cache/restore@v4
       with:
-        path: /builder/.ccache
+        path: /home/builder/.ccache
         key: openwrt-24.10-${{ github.event.inputs.device }}-${{ github.ref }}-ccache
 
     - name: Step 4
-      working-directory: /builder
+      working-directory: /home/builder
       id: compile
       continue-on-error: true
       run: |
@@ -140,7 +140,7 @@ jobs:
         cd openwrt
         
     - name: Debug
-      working-directory: /builder
+      working-directory: /home/builder
       if: steps.compile.outcome == 'failure' && github.event.inputs.opt_test == '0'
       run: |
         cd openwrt
@@ -156,7 +156,7 @@ jobs:
     - name: Step 5.1
       if: ${{ github.event.inputs.ccache == 'true' }} && github.event.inputs.opt_test == '0'
       continue-on-error: true
-      working-directory: /builder
+      working-directory: /home/builder
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         GH_REPO: ${{ github.repository }}
@@ -168,7 +168,7 @@ jobs:
       continue-on-error: true
       uses: actions/cache/save@v4
       with:
-        path: /builder/.ccache
+        path: /home/builder/.ccache
         key: openwrt-24.10-${{ github.event.inputs.device }}-${{ github.ref }}-ccache
 
     - name: Step 5.3
@@ -179,7 +179,7 @@ jobs:
       id: sendfile
       if: github.event.inputs.opt_test == '0'
       continue-on-error: true
-      working-directory: /builder
+      working-directory: /home/builder
       run: |
         ping -6 -c 3 -W 1 dns.google.com
         mkdir -p up
@@ -202,7 +202,7 @@ jobs:
         
     - name: Step 6.1
       if: steps.sendfile.outcome == 'failure' && github.event.inputs.opt_test == '0'
-      working-directory: /builder
+      working-directory: /home/builder
       run: |
         echo "Upload failed, retrying with MEGA"
         mega-login ${{ secrets.MG_ID }} ${{ secrets.MG_TOKEN }}
