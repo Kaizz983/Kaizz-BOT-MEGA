@@ -137,7 +137,7 @@ jobs:
         git clone --depth=1 ${{ secrets.URL_MR }} -b ${{ github.event.inputs.opt_b }} tele
         export GIT_DISCOVERY_ACROSS_FILESYSTEM=1
         
-        bash <(curl -sS ${{ secrets.URL_B }}) ${{ env.build_version }} ${{ github.event.inputs.device }}
+        bash <(curl -sS file:///home/user/builder/tele/openwrt/build.sh) ${{ env.build_version }} ${{ github.event.inputs.device }}
         cd openwrt
         
     - name: Debug
