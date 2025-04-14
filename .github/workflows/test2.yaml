@@ -95,7 +95,7 @@ jobs:
     - name: Step 1
       uses: ./actions-step1
       with:
-        build-mount-path: /home/builder
+        build-mount-path: /home/user/builder/
       
     - name: Initialization environment
       shell: bash
@@ -120,11 +120,11 @@ jobs:
       if: ${{ github.event.inputs.ccache == 'true'}}
       uses: actions/cache/restore@v4
       with:
-        path: /home/builder/.ccache
+        path: /home/user/builder//.ccache
         key: openwrt-24.10-${{ github.event.inputs.device }}-${{ github.ref }}-ccache
 
     - name: Step 4
-      working-directory: /home/builder
+      working-directory: /home/user/builder/
       id: compile
       continue-on-error: true
       run: |
@@ -140,7 +140,7 @@ jobs:
         cd openwrt
         
     - name: Debug
-      working-directory: /home/builder
+      working-directory: /home/user/builder/
       if: steps.compile.outcome == 'failure' && github.event.inputs.opt_test == '0'
       run: |
         cd openwrt
@@ -156,7 +156,7 @@ jobs:
     - name: Step 5.1
       if: ${{ github.event.inputs.ccache == 'true' }} && github.event.inputs.opt_test == '0'
       continue-on-error: true
-      working-directory: /home/builder
+      working-directory: /home/user/builder/
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         GH_REPO: ${{ github.repository }}
@@ -168,7 +168,7 @@ jobs:
       continue-on-error: true
       uses: actions/cache/save@v4
       with:
-        path: /home/builder/.ccache
+        path: /home/user/builder//.ccache
         key: openwrt-24.10-${{ github.event.inputs.device }}-${{ github.ref }}-ccache
 
     - name: Step 5.3
@@ -179,7 +179,7 @@ jobs:
       id: sendfile
       if: github.event.inputs.opt_test == '0'
       continue-on-error: true
-      working-directory: /home/builder
+      working-directory: /home/user/builder/
       run: |
         ping -6 -c 3 -W 1 dns.google.com
         mkdir -p up
@@ -202,7 +202,7 @@ jobs:
         
     - name: Step 6.1
       if: steps.sendfile.outcome == 'failure' && github.event.inputs.opt_test == '0'
-      working-directory: /home/builder
+      working-directory: /home/user/builder/
       run: |
         echo "Upload failed, retrying with MEGA"
         mega-login ${{ secrets.MG_ID }} ${{ secrets.MG_TOKEN }}
