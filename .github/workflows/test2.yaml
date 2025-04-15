@@ -121,7 +121,7 @@ jobs:
       if: ${{ github.event.inputs.ccache == 'true'}}
       uses: actions/cache/restore@v4
       with:
-        path: /home/user/builder//.ccache
+        path: /home/user/builder/.ccache
         key: openwrt-24.10-${{ github.event.inputs.device }}-${{ github.ref }}-ccache
 
     - name: Step 4
@@ -170,7 +170,7 @@ jobs:
       continue-on-error: true
       uses: actions/cache/save@v4
       with:
-        path: /home/user/builder//.ccache
+        path: /home/user/builder/.ccache
         key: openwrt-24.10-${{ github.event.inputs.device }}-${{ github.ref }}-ccache
 
     - name: Step 6
