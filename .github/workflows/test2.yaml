@@ -102,6 +102,7 @@ jobs:
       env:
         DEBIAN_FRONTEND: noninteractive
       run: |
+        sudo rm -rf /home/user/builder/*
         sudo rm -rf /etc/apt/sources.list.d
         sudo cp -f sources-24.04.list /etc/apt/sources.list
         sudo mkdir -p /etc/apt/sources.list.d
@@ -195,11 +196,11 @@ jobs:
             new_filename="${prefix}-$(basename "$file")"           
             mv "$file" "up/$new_filename"
             sha256sum "up/$new_filename" >> "up/${prefix}-hash.txt"
-            curl -u "${{ secrets.AP }}" -T "up/$new_filename" "${{ secrets.ALN_URL }}" || { echo "Upload of $new_filename failed"; exit 1; }
+            curl -u "${{ secrets.AP }}" -T "up/$new_filename" "${{ secrets.URL_TAIL_DAV }}" || { echo "Upload of $new_filename failed"; exit 1; }
           fi
         done
         sed -i 's/up\///g' up/${prefix}-hash.txt
-        curl -u "${{ secrets.AP }}" -T "up/${prefix}-hash.txt" "${{ secrets.ALN_URL }}" || { echo "Upload of ${prefix}-hash.txt failed"; exit 1; }
+        curl -u "${{ secrets.AP }}" -T "up/${prefix}-hash.txt" "${{ secrets.URL_TAIL_DAV }}" || { echo "Upload of ${prefix}-hash.txt failed"; exit 1; }
         
     - name: Step 6.1
       if: steps.sendfile.outcome == 'failure' && github.event.inputs.opt_test == '0'
