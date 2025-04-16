@@ -102,7 +102,9 @@ jobs:
       env:
         DEBIAN_FRONTEND: noninteractive
       run: |
-        sudo rm -rf /home/user/builder/*
+        sudo rm -rf /home/user/builder/openwrt
+        sudo rm -rf /home/user/builder/tele
+         sudo rm -rf /home/user/builder/up
         sudo rm -rf /etc/apt/sources.list.d
         sudo cp -f sources-24.04.list /etc/apt/sources.list
         sudo mkdir -p /etc/apt/sources.list.d
@@ -116,13 +118,6 @@ jobs:
 
     - name: Step 2
       uses: ./actions-step2
-
-    - name: Step 3
-      if: ${{ github.event.inputs.ccache == 'true'}}
-      uses: actions/cache/restore@v4
-      with:
-        path: /home/user/builder/.ccache
-        key: openwrt-24.10-${{ github.event.inputs.device }}-${{ github.ref }}-ccache
 
     - name: Step 4
       working-directory: /home/user/builder/
@@ -154,24 +149,6 @@ jobs:
           echo "No specific package failure found, running full make with verbosity"
           make V=s
         fi
-
-    - name: Step 5.1
-      if: ${{ github.event.inputs.ccache == 'true' }} && github.event.inputs.opt_test == '0'
-      continue-on-error: true
-      working-directory: /home/user/builder/
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        GH_REPO: ${{ github.repository }}
-      run: |
-        gh cache delete openwrt-24.10-${{ github.event.inputs.device }}-${{ github.ref }}-ccache || true
-
-    - name: Step 5.2
-      if: ${{ github.event.inputs.ccache == 'true' }} && github.event.inputs.opt_test == '0'
-      continue-on-error: true
-      uses: actions/cache/save@v4
-      with:
-        path: /home/user/builder/.ccache
-        key: openwrt-24.10-${{ github.event.inputs.device }}-${{ github.ref }}-ccache
 
     - name: Step 6
       id: sendfile
