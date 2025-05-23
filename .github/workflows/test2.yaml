@@ -11,6 +11,7 @@ on:
         options:
           - 'armv64'
           - 'x86_64'
+          - 'mt69'
       version:
         description: 'Branch'
         required: true
