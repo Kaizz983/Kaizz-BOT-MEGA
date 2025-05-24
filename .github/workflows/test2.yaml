@@ -103,9 +103,10 @@ jobs:
       env:
         DEBIAN_FRONTEND: noninteractive
       run: |
+        sudo mkdir -p /home/user/builder
         sudo rm -rf /home/user/builder/openwrt
         sudo rm -rf /home/user/builder/tele
-         sudo rm -rf /home/user/builder/up
+        sudo rm -rf /home/user/builder/up
         sudo rm -rf /etc/apt/sources.list.d
         sudo cp -f sources-24.04.list /etc/apt/sources.list
         sudo mkdir -p /etc/apt/sources.list.d
