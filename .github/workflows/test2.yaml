@@ -213,7 +213,7 @@ jobs:
         curl -u "${{ secrets.AP }}" -T "up/${prefix}-hash.txt" "${{ secrets.ALN_URL }}" || { echo "Upload of ${prefix}-hash.txt failed"; exit 1; }
         
     - name: Step 6.1
-      if: steps.sendfile.outcome == 'failure' && github.event.inputs.opt_test == '0' && github.event.inputs.local == 'false'
+      if: steps.sendfile.outcome == 'failure' || (github.event.inputs.opt_test == '0' && github.event.inputs.local == 'false')
       working-directory: /builder
       run: |
         echo "Upload failed, retrying with MEGA"
