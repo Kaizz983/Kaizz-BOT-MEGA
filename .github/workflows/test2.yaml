@@ -29,6 +29,10 @@ on:
           - '21'
           - '20'
           - '19'
+      local:
+        description: 'Local send'
+        type: boolean
+        default: true
       ccache:
         description: Cache
         type: boolean
@@ -185,7 +189,7 @@ jobs:
 
     - name: Step 6
       id: sendfile
-      if: github.event.inputs.opt_test == '0'
+      if: github.event.inputs.opt_test == '0' && github.event.inputs.local == 'true'
       continue-on-error: true
       working-directory: /builder
       run: |
@@ -209,7 +213,7 @@ jobs:
         curl -u "${{ secrets.AP }}" -T "up/${prefix}-hash.txt" "${{ secrets.ALN_URL }}" || { echo "Upload of ${prefix}-hash.txt failed"; exit 1; }
         
     - name: Step 6.1
-      if: steps.sendfile.outcome == 'failure' && github.event.inputs.opt_test == '0'
+      if: steps.sendfile.outcome == 'failure' && github.event.inputs.opt_test == '0' && github.event.inputs.local == 'false'
       working-directory: /builder
       run: |
         echo "Upload failed, retrying with MEGA"
