@@ -213,7 +213,7 @@ jobs:
         curl -u "${{ secrets.AP }}" -T "up/${prefix}-hash.txt" "${{ secrets.ALN_URL }}" || { echo "Upload of ${prefix}-hash.txt failed"; exit 1; }
         
     - name: Step 6.1
-      if: steps.sendfile.outcome == 'failure' || (github.event.inputs.opt_test == '0' && github.event.inputs.local == 'false')
+      if: steps.sendfile.outcome == 'failure' && github.event.inputs.opt_test == '0'
       working-directory: /builder
       run: |
         echo "Upload failed, retrying with MEGA"
@@ -221,6 +221,33 @@ jobs:
         for file in up/*; do
           if [ -f "$file" ]; then
             mega-put "$file" /BotTele/stable
+          fi
+        done
+        mega-logout
+
+    - name: Step 6.2
+      if: github.event.inputs.local == 'false'
+      working-directory: /builder
+      run: |
+        mega-login ${{ secrets.MG_ID }} ${{ secrets.MG_TOKEN }}
+        mkdir -p up
+        for file in openwrt/bin/targets/x86/*/*-squashfs-combined-efi.img.gz; do
+          if [ -f "$file" ]; then
+            timestamp=$(date +"%H-%M_%d-%m-%y")
+            new_filename="${timestamp}_${{ github.event.inputs.opt_cus }}-clang${{ github.event.inputs.clang }}-$(basename "$file")"
+            if [[ "${{ github.event.inputs.opt_b }}" == "rt" ]]; then
+                new_filename="${timestamp}_${{ github.event.inputs.opt_cus }}_rt-clang${{ github.event.inputs.clang }}-$(basename "$file")"
+            fi
+            cp -a "$file" "up/$new_filename"
+            mega-put "up/$new_filename" /BotTele/stable
+          fi
+        done
+        current_day=$(date +%-d)
+        mega-ls /BotTele/stable | while read -r file_name; do
+          file_day=$(echo "$file_name" | awk -F'[_-]' '{print $3}' | sed 's/^0//')
+          day_diff=$((current_day - file_day))
+          if [ $day_diff -gt 2 ] || [ $day_diff -lt -28 ]; then
+            mega-rm "/BotTele/stable/$file_name"
           fi
         done
         mega-logout
