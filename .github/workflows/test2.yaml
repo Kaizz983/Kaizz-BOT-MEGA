@@ -149,17 +149,41 @@ jobs:
       if: steps.compile.outcome == 'failure' && github.event.inputs.opt_test == '0'
       run: |
         cd openwrt
-        FAILED_PACKAGE=$(grep "ERROR: .* failed to build" compile_log.txt | sed 's/ERROR: \(.*\) failed to build./\1/')
-        if [ -n "$FAILED_PACKAGE" ]; then
-          echo "Debugging failed package: $FAILED_PACKAGE"
-          # check if compile_log.txt find target/linux install
-          if grep -q "target/linux install" compile_log.txt; then
-            echo "target/linux found in compile_log.txt, running make with verbosity"
-            make -j1 V=s "$FAILED_PACKAGE/install"
+
+        # Lấy dòng lỗi đầu tiên
+        FAILED_LINE=$(grep -m1 -E "ERROR: .+ failed to build" compile_log.txt || true)
+
+        if [ -n "$FAILED_LINE" ]; then
+          echo "Found error line: $FAILED_LINE"
+
+          # Có phải lỗi ở pha host?
+          if echo "$FAILED_LINE" | grep -q "\[host\]"; then
+            IS_HOST=1
           else
-            echo "No target/linux found in compile_log.txt, running make with verbosity"
-            make -j1 V=s "$FAILED_PACKAGE/compile"
+            IS_HOST=0
           fi
+
+          # Trích ra đường dẫn gói (vd: package/feeds/packages/rust)
+          FAILED_PACKAGE=$(printf '%s\n' "$FAILED_LINE" | sed -E 's/^ERROR: ([^ ]+) .*/\1/')
+
+          echo "Debugging failed package: $FAILED_PACKAGE (host=$IS_HOST)"
+
+          if [ "$IS_HOST" -eq 1 ]; then
+            # Lỗi host -> build lại host/compile
+            TARGET="${FAILED_PACKAGE}/host/compile"
+          else
+            # Lỗi target -> quyết định compile hay install dựa theo log
+            if grep -q "target/linux install" compile_log.txt; then
+              echo "target/linux found in compile_log.txt, running install"
+              TARGET="${FAILED_PACKAGE}/install"
+            else
+              echo "No target/linux found in compile_log.txt, running compile"
+              TARGET="${FAILED_PACKAGE}/compile"
+            fi
+          fi
+
+          echo "make -j1 V=s $TARGET"
+          make -j1 V=s "$TARGET"
         else
           echo "No specific package failure found, running full make with verbosity"
           make V=s
