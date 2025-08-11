@@ -50,7 +50,7 @@ on:
       opt_b:
         description: 'option_B'
         required: true
-        default: '6.12.8-test'
+        default: 'natflow'
         type: string
       opt_test:
         description: 'option_Test'
