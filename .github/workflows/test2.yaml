@@ -149,7 +149,21 @@ jobs:
       if: steps.compile.outcome == 'failure' && github.event.inputs.opt_test == '0'
       run: |
         cd openwrt
-        make V=s
+        FAILED_PACKAGE=$(grep "ERROR: .* failed to build" compile_log.txt | sed 's/ERROR: \(.*\) failed to build./\1/')
+        if [ -n "$FAILED_PACKAGE" ]; then
+          echo "Debugging failed package: $FAILED_PACKAGE"
+          # check if compile_log.txt find target/linux install
+          if grep -q "target/linux install" compile_log.txt; then
+            echo "target/linux found in compile_log.txt, running make with verbosity"
+            make -j1 V=s "$FAILED_PACKAGE/install"
+          else
+            echo "No target/linux found in compile_log.txt, running make with verbosity"
+            make -j1 V=s "$FAILED_PACKAGE/compile"
+          fi
+        else
+          echo "No specific package failure found, running full make with verbosity"
+          make V=s
+        fi
 
     - name: Step 5.1
       if: ${{ github.event.inputs.ccache == 'true' }} && github.event.inputs.opt_test == '0'
