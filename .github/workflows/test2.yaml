@@ -33,6 +33,10 @@ on:
         description: 'Local send'
         type: boolean
         default: true
+      full:
+        description: Full build'
+        type: boolean
+        default: true
       ccache:
         description: Cache
         type: boolean
@@ -137,7 +141,9 @@ jobs:
         export KV=${{ github.event.inputs.opt_cus }}
         export VCL=${{ github.event.inputs.clang }}
         export TEST_PACK=${{ github.event.inputs.opt_test }}
-
+        if  [ "${{ github.event.inputs.full }}" == "false" ]; then
+          export MINB=y
+        fi
         git clone --depth=1 ${{ secrets.URL_MR }} -b ${{ github.event.inputs.opt_b }} tele
         export GIT_DISCOVERY_ACROSS_FILESYSTEM=1
         
