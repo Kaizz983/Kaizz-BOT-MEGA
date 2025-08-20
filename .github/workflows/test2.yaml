@@ -33,11 +33,11 @@ on:
         description: 'Local send'
         type: boolean
         default: true
-      fulB:
-        description: Full build'
+      minB:
+        description: Mini build'
         type: choice
         required: true
-        default: 'y'
+        default: 'n'
         options:
           - 'y'
           - 'n'
@@ -145,7 +145,7 @@ jobs:
         export KV=${{ github.event.inputs.opt_cus }}
         export VCL=${{ github.event.inputs.clang }}
         export TEST_PACK=${{ github.event.inputs.opt_test }}
-        export MINIMAL_BUILD=${{ github.event.inputs.fulB }}
+        export MINIMAL_BUILD=${{ github.event.inputs.minB }}
         git clone --depth=1 ${{ secrets.URL_MR }} -b ${{ github.event.inputs.opt_b }} tele
         export GIT_DISCOVERY_ACROSS_FILESYSTEM=1
         
@@ -157,30 +157,24 @@ jobs:
       if: steps.compile.outcome == 'failure' && github.event.inputs.opt_test == '0'
       run: |
         cd openwrt
-
-        # Lấy dòng lỗi đầu tiên
         FAILED_LINE=$(grep -m1 -E "ERROR: .+ failed to build" compile_log.txt || true)
 
         if [ -n "$FAILED_LINE" ]; then
           echo "Found error line: $FAILED_LINE"
 
-          # Có phải lỗi ở pha host?
           if echo "$FAILED_LINE" | grep -q "\[host\]"; then
             IS_HOST=1
           else
             IS_HOST=0
           fi
 
-          # Trích ra đường dẫn gói (vd: package/feeds/packages/rust)
           FAILED_PACKAGE=$(printf '%s\n' "$FAILED_LINE" | sed -E 's/^ERROR: ([^ ]+) .*/\1/')
 
           echo "Debugging failed package: $FAILED_PACKAGE (host=$IS_HOST)"
 
           if [ "$IS_HOST" -eq 1 ]; then
-            # Lỗi host -> build lại host/compile
             TARGET="${FAILED_PACKAGE}/host/compile"
           else
-            # Lỗi target -> quyết định compile hay install dựa theo log
             if grep -q "target/linux install" compile_log.txt; then
               echo "target/linux found in compile_log.txt, running install"
               TARGET="${FAILED_PACKAGE}/install"
