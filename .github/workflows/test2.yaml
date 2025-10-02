@@ -168,7 +168,7 @@ jobs:
             IS_HOST=0
           fi
 
-          FAILED_PACKAGE=$(printf '%s\n' "$FAILED_LINE" | sed -E 's/^ERROR: ([^ ]+) .*/\1/')
+         FAILED_PACKAGE=$(grep "ERROR: .* failed to build" compile_log.txt | sed 's/ERROR: \(.*\) failed to build./\1/') 
 
           echo "Debugging failed package: $FAILED_PACKAGE (host=$IS_HOST)"
 
