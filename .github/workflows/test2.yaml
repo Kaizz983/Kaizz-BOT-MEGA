@@ -227,7 +227,7 @@ jobs:
             prefix="${timestamp}_${{ github.event.inputs.opt_cus }}_rt-clang${{ github.event.inputs.clang }}"
         fi
         touch "up/${prefix}-hash.txt"
-        for file in openwrt/bin/targets/x86/*/*-squashfs-combined-efi.img.gz; do
+        for file in openwrt/bin/targets/x86/*/*-erofs-combined-efi.img.gz; do
           if [ -f "$file" ]; then
             new_filename="${prefix}-$(basename "$file")"           
             mv "$file" "up/$new_filename"
@@ -257,7 +257,7 @@ jobs:
       run: |
         mega-login ${{ secrets.MG_ID }} ${{ secrets.MG_TOKEN }}
         mkdir -p up
-        for file in openwrt/bin/targets/x86/*/*-squashfs-combined-efi.img.gz; do
+        for file in openwrt/bin/targets/x86/*/*-erofs-combined-efi.img.gz; do
           if [ -f "$file" ]; then
             timestamp=$(date +"%H-%M_%d-%m-%y")
             new_filename="${timestamp}_${{ github.event.inputs.opt_cus }}-clang${{ github.event.inputs.clang }}-$(basename "$file")"
