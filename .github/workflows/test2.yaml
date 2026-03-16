@@ -200,7 +200,7 @@ jobs:
         fi
 
     - name: Step 5.1
-      if: ${{ github.event.inputs.ccache == 'true' }} && github.event.inputs.opt_test == '0'
+      if: ${{ github.event.inputs.ccache == 'true' && github.event.inputs.opt_test == '0' }}
       continue-on-error: true
       working-directory: /builder
       env:
@@ -210,7 +210,7 @@ jobs:
         gh cache delete openwrt-24.10-${{ github.event.inputs.device }}-${{ github.ref }}-ccache || true
 
     - name: Step 5.2
-      if: ${{ github.event.inputs.ccache == 'true' }} && github.event.inputs.opt_test == '0'
+      if: ${{ github.event.inputs.ccache == 'true' && github.event.inputs.opt_test == '0' }}
       continue-on-error: true
       uses: actions/cache/save@v4
       with:
@@ -218,12 +218,12 @@ jobs:
         key: openwrt-24.10-${{ github.event.inputs.device }}-${{ github.ref }}-ccache
 
     - name: Step 5.3
-      if: github.event.inputs.opt_test == '0' && github.event.inputs.local == 'true'
+      if: ${{ github.event.inputs.opt_test == '0' && github.event.inputs.local == 'true' }}
       uses: nekorobi/warp-action@v1.0.2
 
     - name: Step 6
       id: sendfile
-      if: github.event.inputs.opt_test == '0' && github.event.inputs.local == 'true'
+      if: ${{ github.event.inputs.opt_test == '0' && github.event.inputs.local == 'true' }}
       continue-on-error: true
       working-directory: /builder
       run: |
