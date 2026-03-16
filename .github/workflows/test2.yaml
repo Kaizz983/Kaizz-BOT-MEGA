@@ -144,12 +144,16 @@ jobs:
       working-directory: /builder
       id: compile
       continue-on-error: true
+      env:
+        git_name: ${{ secrets.username }}
+        git_password: ${{ secrets.password }}
       run: |
         export LAN=${{ github.event.inputs.lan_addr }}
         export KV=${{ github.event.inputs.opt_cus }}
         export VCL=${{ github.event.inputs.clang }}
         export TEST_PACK=${{ github.event.inputs.opt_test }}
         export MINIMAL_BUILD=${{ github.event.inputs.minB }}
+        [ -n ${{ github.event.inputs.root_password }} ] && export ROOT_PASSWORD="${{ github.event.inputs.root_password }}"
         git clone --depth=1 ${{ secrets.URL_MR }} -b ${{ github.event.inputs.opt_b }} tele
         export GIT_DISCOVERY_ACROSS_FILESYSTEM=1
         
