@@ -135,7 +135,7 @@ jobs:
 
     - name: Step 3
       if: ${{ github.event.inputs.ccache == 'true'}}
-      uses: actions/cache/restore@v4
+      uses: actions/cache/restore@v5
       with:
         path: /builder/.ccache
         key: openwrt-24.10-${{ github.event.inputs.device }}-${{ github.ref }}-ccache
@@ -217,9 +217,6 @@ jobs:
         path: /builder/.ccache
         key: openwrt-24.10-${{ github.event.inputs.device }}-${{ github.ref }}-ccache
 
-    - name: Step 5.3
-      if: ${{ github.event.inputs.opt_test == '0' && github.event.inputs.local == 'true' }}
-      uses: nekorobi/warp-action@v1.0.2
 
     - name: Step 6
       id: sendfile
